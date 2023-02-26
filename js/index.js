@@ -65,7 +65,6 @@ window.addEventListener('DOMContentLoaded', () => {
                 slidesWrapper = document.querySelector(".slider-wrapper"),  
                 slidesField = document.querySelector(".slider-field"),     
                 width = parseInt(window.getComputedStyle(slidesWrapper).width ); 
-        console.log(width);        
 
         let slideIndex = 1; 
         let offset = 0; 
@@ -115,6 +114,13 @@ window.addEventListener('DOMContentLoaded', () => {
             if (slideIndex == 1) prev.classList.remove('active')
             clearInterval(autoplay);
         } 
+        const images = document.querySelectorAll('.slide-img');
+
+        if ( images.length > 0) images.forEach(img => {
+            img.addEventListener('click', () => {
+                img.classList.add('show');
+            })
+        })
     }
     // form
 /*     function forms () {
