@@ -49,10 +49,11 @@ window.addEventListener('DOMContentLoaded', () => {
                     otherBtn.classList.remove('active');
                 } );
                 btn.classList.add('active');
+                tabs.forEach(tab => tab.classList.remove('_section-show'));
                 tabs.forEach(tab => tab.classList.add('_section-hide'));
                 tabs[i].classList.remove('_section-hide');
                 tabs[i].classList.add('_section-show');
-                if (i == 1) slider(); 
+                if (i == 1) slider();
             }));
         }   
     }
@@ -114,13 +115,77 @@ window.addEventListener('DOMContentLoaded', () => {
             if (slideIndex == 1) prev.classList.remove('active')
             clearInterval(autoplay);
         } 
-        const images = document.querySelectorAll('.slide-img');
+        const images = document.querySelectorAll('.img-big'),
+              sliders = document.querySelectorAll('._slider');
 
-        if ( images.length > 0) images.forEach(img => {
-            img.addEventListener('click', () => {
-                img.classList.add('show');
-            })
-        })
+        if ( images.length > 0) {
+            images.forEach((img) => {
+                img.addEventListener('click', () => {
+                    sliders.forEach(slider =>  {
+                        if(img.dataset.slider == slider.dataset.slides ) {
+                            sliders.forEach(otherslide => otherslide.classList.remove('active'));
+                            slider.classList.add('active');
+                        }
+                    })
+                });
+            });
+        }
+    
+        sliders.forEach(imageSlider =>  {
+            const slides = imageSlider.querySelectorAll('.slide-slider'),
+                prev = imageSlider.querySelector("#prew-button"),  
+                next = imageSlider.querySelector("#next-button"),  
+                sliderClose = imageSlider.querySelector('.slider-close'),
+                slidesWrapper = imageSlider.querySelector(".slider-wrapper"),  
+                slidesField = imageSlider.querySelector(".slider-field"),     
+                width = parseInt(window.getComputedStyle(slidesWrapper).width ); 
+
+            let slideIndex = 1; 
+            let offset = 0; 
+            if (sliderClose) sliderClose.addEventListener('click', () => imageSlider.classList.remove('active'));
+            if (slides.length > 0) slides.forEach(slide => slide.style.width = width +'px');
+            if (next) next.addEventListener('click', nextSlide);
+            if (prev) prev.addEventListener('click', prevSlide);
+            if (slidesField) {
+                slidesField.style.display = "flex"
+                slidesField.style.width = 100 * slides.length  + '%';   
+                slidesField.style.transition = 'all 0.7s ease'; 
+            }           
+            
+            function prevSlide () {
+                if (offset == 0) {      
+                    offset = width  * (slides.length -1) ;  
+                } else {
+                    offset = offset - width; 
+                }
+                slidesField.style.transform = `translateX(-${offset}px)`;  
+                
+                if (slideIndex == 1) {            
+                    slideIndex = slides.length;
+                } else {
+                    slideIndex--;              
+                }
+                if (slideIndex > 1) prev.classList.add('active')
+                if (slideIndex == 1) prev.classList.remove('active')
+            }
+            
+            function nextSlide () {
+                if (offset == width * (slides.length -1)) {      
+                    offset = 0;                       
+                } else {
+                    offset = offset + width;  
+                }
+                slidesField.style.transform = `translateX(-${offset}px)`;
+                
+                if (slideIndex == slides.length) {          
+                    slideIndex = 1;
+                } else {
+                    slideIndex++;                          
+                }
+                if (slideIndex > 1) prev.classList.add('active')
+                if (slideIndex == 1) prev.classList.remove('active')
+            }
+        }) 
     }
     // form
 /*     function forms () {
