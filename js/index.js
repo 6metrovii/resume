@@ -188,15 +188,34 @@ window.addEventListener('DOMContentLoaded', () => {
         }) 
     }
     // form
-/*     function forms () {
+    function  forms () {
         const form = document.forms[0],
+              formName = form.name,
+              formMail = form.email,
+              formText = form.message,
               formMessage = document.querySelector('.form-message'),
               formSpinner = document.querySelector('.form-spinner');
-        
-        if (form) form.addEventListener('submit', e => {
+        if (form) form.addEventListener('submit',  async (e) => {
             e.preventDefault();
-            const formData = new FormData(form);
-            fetch(form.action, {
+            
+            const url = "../mailer/smart.php"
+            let info = {
+                name: formName.value,
+                mail: formMail.value,
+                text: formText.value,
+            }
+            let response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8'
+                },
+                body: JSON.stringify(info),
+            });
+            if (response.ok) {
+                let result = await response.json();
+            }
+            console.log('j')
+            /* fetch(form.action, {
                 method: form.method,
                 body: formData
             }).then(response => {
@@ -215,8 +234,8 @@ window.addEventListener('DOMContentLoaded', () => {
                 setTimeout(() => {
                     formMessage.classList.remove('active');
                 },4000)
-            });
+            }); */
         });
     }
-    forms(); */
+    forms();
 });
