@@ -190,52 +190,86 @@ window.addEventListener('DOMContentLoaded', () => {
     // form
     function  forms () {
         const form = document.forms[0],
-              formName = form.name,
-              formMail = form.email,
-              formText = form.message,
               formMessage = document.querySelector('.form-message'),
               formSpinner = document.querySelector('.form-spinner');
-        if (form) form.addEventListener('submit',  async (e) => {
+              systemMessage = {
+                errorValueInput: 'Fill in required fields!',
+                errorLoadForm: 'Error sending data. Please try again later' ,
+              };
+
+        if (form) form.addEventListener('submit',  formSend);
+
+        async function formSend (e) {
             e.preventDefault();
-            
-            const url = "../mailer/smart.php"
-            let info = {
-                name: formName.value,
-                mail: formMail.value,
-                text: formText.value,
-            }
-            let response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json;charset=utf-8'
-                },
-                body: JSON.stringify(info),
-            });
-            if (response.ok) {
-                let result = await response.json();
-            }
-            console.log('j')
-            /* fetch(form.action, {
-                method: form.method,
-                body: formData
-            }).then(response => {
+
+            let error = formValidate(form);  
+            const url = "mailer/sendmail.php"
+            const formData = new FormData(form);
+            const errorMessage = document.createElement('div');
+            errorMessage.classList.add('_error-message');
+
+            if(error == 0) {
                 formSpinner.classList.add('active');
-                formMessage.classList.add('active');
-                setTimeout(() => {
-                    formSpinner.classList.remove('active');
-                },3000)
-                setTimeout(() => {
-                    formMessage.classList.remove('active');
-                },5000)
+    
+                let response = await fetch(url, {
+                    method: 'POST',
+                    body: formData,
+                });
+    
                 form.reset();
-            }).catch(error => {
-                formMessage.textContent = "An error occurred while sending the message :("
-                formMessage.classList.add('active');
+    
+                if (response.ok) {
+                    formSpinner.classList.remove('active');
+                    formMessage.classList.add('active');
+                    setTimeout(() => {
+                        formMessage.classList.remove('active');
+                    },5000)
+                } else {
+                    formMessage.textContent = systemMessage.errorLoadForm;
+                    formMessage.classList.add('active');
+                    setTimeout(() => {
+                        formMessage.classList.remove('active');
+                    },4000)
+                }
+            } else {
+                errorMessage.textContent = systemMessage.errorValueInput;
+                form.append(errorMessage);
                 setTimeout(() => {
-                    formMessage.classList.remove('active');
-                },4000)
-            }); */
-        });
+                    errorMessage.remove();
+                }, 4000);
+            }
+        }
+
+        function formValidate(form){
+            let error = 0;
+            let formReq = document.querySelectorAll('.req');
+            formReq.forEach( input => {
+                formRemoveError(input);
+                if (input.classList.contains('form-mail')) {
+                    if (emailTest(input)) {
+                        formAddError(input);
+                        error++;
+                    }
+                } else {
+                    if (input.value === '') {
+                        formAddError(input);
+                        error++;
+                    }
+                }
+            })
+            return error;
+        }
+        function formAddError (input) {
+            input.parentElement.classList.add('error');
+            input.classList.add('error');
+        }
+        function formRemoveError (input) {
+            input.parentElement.classList.remove('error');
+            input.classList.remove('error');
+        }
+        function emailTest (input) {
+            return !/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,8})+$/.test(input.value);
+        }
     }
     forms();
 });
